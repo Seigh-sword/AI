@@ -1,4 +1,3 @@
-// tiny neural-like AI simulator
 const styleTokens = ["😅","☕","🤖💥","…","⚡"];
 const chat = document.getElementById("chat");
 const promptEl = document.getElementById("prompt");
@@ -10,23 +9,31 @@ let memory = JSON.parse(localStorage.getItem("ai_memory") || "{}");
 // AI response function
 function tinyAI(prompt){
   prompt = prompt.toLowerCase();
-  let base = "I am sorry for the mistakes and all";
+  let base = "I am sorry for the mistakes and all…";
 
-  if(prompt.includes("really") || prompt.includes("oops")){
-    base = "I am really, sor–";
-  } else if(prompt.includes("joke")){
-    base = "I am sorry for the mistakes and all… unless the CPU did it 🤖💥";
-  }
+  if(prompt.includes("hello")) base = "Yo! What's up, champ? 😎";
+  if(prompt.includes("really") || prompt.includes("oops")) base = "I am really, sor–";
+  if(prompt.includes("joke")) base = "I am sorry for the mistakes and all… unless the CPU did it 🤖💥";
 
   // sprinkle personality
   const flavor = styleTokens[Math.floor(Math.random()*styleTokens.length)];
-  let response = base + " " + flavor;
+  base += " " + flavor;
 
-  // store last prompt in memory
+  // store last prompt
   memory.lastPrompt = prompt;
   localStorage.setItem("ai_memory", JSON.stringify(memory));
 
-  return response;
+  // fallback if default
+  if(base.includes("…")) return googleFallback(prompt);
+
+  return base;
+}
+
+// Google fallback
+function googleFallback(prompt){
+  const url = "https://www.google.com/search?q=" + encodeURIComponent(prompt);
+  window.open(url, "_blank");
+  return "Hmm… I don’t know! But I searched the internet for you 🔍";
 }
 
 // display message
