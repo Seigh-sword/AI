@@ -1,12 +1,22 @@
-const styleTokens = ["😅","☕","🤖💥","…","⚡"];
-const chat = document.getElementById("chat");
-const promptEl = document.getElementById("prompt");
-const sendBtn = document.getElementById("send");
+sendBtn.onclick = () => {
+  const userText = promptEl.value.trim();
+  if(!userText) return;
+  addMessage(userText, "user");
+  promptEl.value = "";
 
-// load memory
-let memory = JSON.parse(localStorage.getItem("ai_memory") || "{}");
+  let botText = tinyAI(userText);
 
-// AI response function
+  // Check if botText is the fallback signal
+  if(botText === "__google__") {
+    const url = "https://www.google.com/search?q=" + encodeURIComponent(userText);
+    window.open(url, "_blank");
+    botText = "Hmm… I don’t know! But I searched the internet for you 🔍";
+  }
+
+  addMessage(botText, "bot");
+};
+
+// Modify tinyAI to return a signal instead of calling window.open directly
 function tinyAI(prompt){
   prompt = prompt.toLowerCase();
   let base = "I am sorry for the mistakes and all…";
@@ -23,33 +33,8 @@ function tinyAI(prompt){
   memory.lastPrompt = prompt;
   localStorage.setItem("ai_memory", JSON.stringify(memory));
 
-  // fallback if default
-  if(base.includes("…")) return googleFallback(prompt);
+  // fallback signal
+  if(base.includes("…")) return "__google__";
 
   return base;
 }
-
-// Google fallback
-function googleFallback(prompt){
-  const url = "https://www.google.com/search?q=" + encodeURIComponent(prompt);
-  window.open(url, "_blank");
-  return "Hmm… I don’t know! But I searched the internet for you 🔍";
-}
-
-// display message
-function addMessage(text, cls){
-  const div = document.createElement("div");
-  div.className = "msg " + cls;
-  div.innerText = text;
-  chat.appendChild(div);
-  chat.scrollTop = chat.scrollHeight;
-}
-
-sendBtn.onclick = () => {
-  const userText = promptEl.value.trim();
-  if(!userText) return;
-  addMessage(userText, "user");
-  promptEl.value = "";
-  const botText = tinyAI(userText);
-  addMessage(botText, "bot");
-};
