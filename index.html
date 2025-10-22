@@ -2,15 +2,18 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>AstraScript AI</title>
-  <link rel="stylesheet" href="style.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Seigh_sword AI Chatbot</title>
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <h1>AstraScript AI</h1>
-  <div id="chat"></div>
-  <textarea id="prompt" placeholder="Say something..." rows="3"></textarea>
-  <button id="send">Send</button>
+  <div id="chat-container">
+    <div id="messages"></div>
+    <input type="text" id="user-input" placeholder="Say something...">
+    <button id="send-btn">Send</button>
+  </div>
 
+  <!-- Link to the correct JS file -->
   <script src="script.js"></script>
 </body>
 </html>
