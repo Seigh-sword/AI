@@ -1,40 +1,36 @@
-sendBtn.onclick = () => {
-  const userText = promptEl.value.trim();
-  if(!userText) return;
-  addMessage(userText, "user");
-  promptEl.value = "";
+const messagesDiv = document.getElementById('messages');
+const userInput = document.getElementById('user-input');
+const sendBtn = document.getElementById('send-btn');
 
-  let botText = tinyAI(userText);
+sendBtn.addEventListener('click', sendMessage);
+userInput.addEventListener('keypress', (e) => {
+  if (e.key === 'Enter') sendMessage();
+});
 
-  // Check if botText is the fallback signal
-  if(botText === "__google__") {
-    const url = "https://www.google.com/search?q=" + encodeURIComponent(userText);
-    window.open(url, "_blank");
-    botText = "Hmm… I don’t know! But I searched the internet for you 🔍";
+async function sendMessage() {
+  const message = userInput.value.trim();
+  if (!message) return;
+
+  addMessage(`You: ${message}`);
+  userInput.value = '';
+
+  try {
+    const response = await fetch('/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message })
+    });
+    const data = await response.json();
+    addMessage(`AI: ${data.reply}`);
+  } catch (err) {
+    addMessage('AI: Error connecting to server.');
+    console.error(err);
   }
+}
 
-  addMessage(botText, "bot");
-};
-
-// Modify tinyAI to return a signal instead of calling window.open directly
-function tinyAI(prompt){
-  prompt = prompt.toLowerCase();
-  let base = "I am sorry for the mistakes and all…";
-
-  if(prompt.includes("hello")) base = "Yo! What's up, champ? 😎";
-  if(prompt.includes("really") || prompt.includes("oops")) base = "I am really, sor–";
-  if(prompt.includes("joke")) base = "I am sorry for the mistakes and all… unless the CPU did it 🤖💥";
-
-  // sprinkle personality
-  const flavor = styleTokens[Math.floor(Math.random()*styleTokens.length)];
-  base += " " + flavor;
-
-  // store last prompt
-  memory.lastPrompt = prompt;
-  localStorage.setItem("ai_memory", JSON.stringify(memory));
-
-  // fallback signal
-  if(base.includes("…")) return "__google__";
-
-  return base;
+function addMessage(text) {
+  const p = document.createElement('p');
+  p.textContent = text;
+  messagesDiv.appendChild(p);
+  messagesDiv.scrollTop = messagesDiv.scrollHeight;
 }
